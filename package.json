@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "start-dev": "nodemon ./src/index.js",
+    "start": "node ./src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^13.8.1",
+    "dotenv": "^16.0.1",
+    "node-fetch": "^3.2.10",
+    "node-schedule": "^2.1.0",
+    "nodemon": "^2.0.19",
+    "spacetime": "^7.1.4"
+  }
+}
