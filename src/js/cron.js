@@ -18,6 +18,7 @@ const setUpAvailabilityCronJobs = async (client) => {
     //  :step 0:
     //  delete the previous avabilability messages
     await deleteAllMessages(client, "cheeki-breachability")
+    await deleteAllMessages(client, "cheeki-schedule")
     
     //
     //  :step 1:
@@ -36,13 +37,13 @@ const setUpAvailabilityCronJobs = async (client) => {
     await channleObject.send(
       "<@&" + role + ">"
     );
-    channleObject.send(`============================================\n<t:${epochArray[0].epoch}:F>`);
-    channleObject.send(`============================================\n<t:${epochArray[1].epoch}:F>`);
-    channleObject.send(`============================================\n<t:${epochArray[2].epoch}:F>`);
-    channleObject.send(`============================================\n<t:${epochArray[3].epoch}:F>`);
-    channleObject.send(`============================================\n<t:${epochArray[4].epoch}:F>`);
-    channleObject.send(`============================================\n<t:${epochArray[5].epoch}:F>`);
-    channleObject.send(`============================================\n<t:${epochArray[6].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[0].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[1].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[2].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[3].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[4].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[5].epoch}:F>`);
+    channleObject.send(`========================================\n<t:${epochArray[6].epoch}:F>`);
   });
 };
 

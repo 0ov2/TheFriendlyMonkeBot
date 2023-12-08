@@ -23,6 +23,7 @@ const client = new Client({
     "GUILD_MESSAGE_REACTIONS",
   ],
 });
+const userToConfirmScrimID = '259466508814516224'
 
 //
 //  :runtime:
@@ -33,7 +34,7 @@ client.on("ready", async () => {
   setUpAvailabilityCronJobs(client);
 });
 
-client.on("messageReactionAdd", async (message) => {
+client.on("messageReactionAdd", async (message, user) => {
   //
   //  :step 1:
   //  Check if this message is from cheeki-breachability
@@ -41,18 +42,25 @@ client.on("messageReactionAdd", async (message) => {
     client,
     message.message.channelId
   );
+  const cheekiScheduleChannelObject = await getDiscordChannelObject(
+    client,
+    "cheeki-schedule"
+  );
+  const messageFromChannel = await channel.messages.fetch(message.message.id);
+  const messageContent = messageFromChannel.content;
+  const regexOutput = messageContent.match(/<t:(\d+):F>/);
+  let epochTime = null;
+  let reactionCount = null;
+
+  if (regexOutput) {
+    epochTime = regexOutput[1];
+  }
+
   if (channel.name === "cheeki-breachability") {
-    let epochTime = null;
-    let reactionCount = null;
     //
     //  :step 2:
     //  Get the amount of reactions and the epoch time from the message
-    const messageFromChannel = await channel.messages.fetch(message.message.id);
-    const messageContent = messageFromChannel.content;
-    const regexOutput = messageContent.match(/<t:(\d+):F>/);
-    if (regexOutput) {
-      epochTime = regexOutput[1];
-
+    if (epochTime) {
       //
       //  :step 3:
       //  We've confirmed that the reaction is valid, now lets count how many other reactions are on this message
@@ -65,11 +73,6 @@ client.on("messageReactionAdd", async (message) => {
         //  :step 4:
         //  We have 5+ reactions, we now need to update the cheeki-schedule message
         //  Lets find/create the availability message for the relative epoch time
-        const cheekiScheduleChannelObject = await getDiscordChannelObject(
-          client,
-          "cheeki-schedule"
-        );
-
         //
         //  :step 4a:
         //  first try to find the message with the epoch time
@@ -83,13 +86,16 @@ client.on("messageReactionAdd", async (message) => {
           //  :step 4b:
           //  If there is no channel message, we need to create one
           await cheekiScheduleChannelObject.send(
-            `============================================\n<t:${epochTime}:F>`
+            `========================================\n<t:${epochTime}:F>`
           );
         }
       }
     }
   }
   if (channel.name === "cheeki-schedule") {
+    const userWhoReactedID = user.id;
+    const userToConfirmScrimObject = await client.users.fetch(userToConfirmScrimID);
+    await userToConfirmScrimObject.send(`<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F>`)
   }
 });
 
