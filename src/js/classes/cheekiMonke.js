@@ -1,6 +1,6 @@
 //
 //  :code:
-const { getDiscordChannelObject } = require("../util");
+const { getDiscordChannelObject, getSpecificRoleByName } = require("../util");
 
 class CheekiMonke {
   constructor(client) {
@@ -22,6 +22,8 @@ class CheekiMonke {
     this.pubicScheduleChannelName = "cheeki-schedule";
     this.confirmScrimChannelName = "cheeki-confirm";
     this.matchesChannelName = "cheeki-matches";
+    this.teamBreachersRoleName = "team-breachers";
+    this.userToConfirmScrimID = "259466508814516224";
   }
 
   async runtime() {
@@ -30,13 +32,17 @@ class CheekiMonke {
       this.pubicScheduleChannelName
     );
     this.cheekiConfirmChannelObject = await getDiscordChannelObject(
-        this.client,
-        this.confirmScrimChannelName
-      );
+      this.client,
+      this.confirmScrimChannelName
+    );
     this.cheekiMatchesChannelObject = await getDiscordChannelObject(
-        this.client,
-        this.matchesChannelName
-      );
+      this.client,
+      this.matchesChannelName
+    );
+    this.teamBreachersRole = await getSpecificRoleByName(
+      this.client,
+      this.teamBreachersRoleName
+    );
   }
 
   async handleCheekiBreachabilityReactionAdd(epochTime, messageFromChannel) {
@@ -45,7 +51,8 @@ class CheekiMonke {
     }
     //
     // Get what we will need for the handler
-    let channelMessages = await this.cheekiScheduleChannelObject.messages.fetch();
+    let channelMessages =
+      await this.cheekiScheduleChannelObject.messages.fetch();
     let channelMessage = channelMessages.find(
       (msg) => msg.content.includes(epochTime) && msg.author.bot == true
     );
@@ -67,6 +74,32 @@ class CheekiMonke {
         );
       }
     }
+  }
+
+  async handleCheekiScheduleReactionAdd(user, epochTime) {
+    const userWhoReactedID = user.id;
+    await this.cheekiConfirmChannelObject
+      .send(
+        `<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F> -- confirm <@${this.userToConfirmScrimID}>`
+      )
+      .then(async (m) => {
+        await m.react("✅");
+        await m.react("❌");
+      });
+  }
+
+  async handleCheekiConfirmReactionAdd(message, epochTime) {
+    if (message.emoji.name === '✅') {
+        await message.message.delete()
+        const teamBreachersRole = await getSpecificRoleByName(this.client, this.teamBreachersRoleName);
+        await this.cheekiMatchesChannelObject.send(`${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`)
+        //
+        //  :TODO: 
+        //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well 
+      }
+      if (message.emoji.name === '❌') {
+        await message.message.delete()
+      }
   }
 }
 

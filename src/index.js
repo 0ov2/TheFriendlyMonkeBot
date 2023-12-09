@@ -50,6 +50,7 @@ client.on("messageReactionAdd", async (message, user) => {
   if (user.bot) return; // Ignore messages from bots
   cheekiMonke = new CheekiMonke(client)
   cheekiMonke.runtime()
+
   //
   //  :step 1:
   //  Check if this message is from cheeki-breachability
@@ -57,90 +58,25 @@ client.on("messageReactionAdd", async (message, user) => {
     client,
     message.message.channelId
   );
-  const cheekiScheduleChannelObject = await getDiscordChannelObject(
-    client,
-    "cheeki-schedule"
-  );
-  const cheekiConfirmChannelObject = await getDiscordChannelObject(
-    client,
-    "cheeki-confirm"
-  );
-  const cheekiMatchesChannelObject = await getDiscordChannelObject(
-    client,
-    "cheeki-matches"
-  );
   const messageFromChannel = await channel.messages.fetch(message.message.id);
   const messageContent = messageFromChannel.content;
   const regexOutput = messageContent.match(/<t:(\d+):F>/);
   let epochTime = null;
-  let reactionCount = null;
 
   if (regexOutput) {
     epochTime = regexOutput[1];
   }
-  if (channel.name === "cheeki-breachability") { 
-    await cheekiMonke.handleCheekiBreachabilityReactionAdd(epochTime, messageFromChannel)
-
-    if (epochTime) {
-      //
-      //  :step 3:
-      //  We've confirmed that the reaction is valid, now lets count how many other reactions are on this message
-      // await messageFromChannel.reactions.cache.map(() => {
-      //   reactionCount += 1;
-      // });
-
-      if (reactionCount >= 1) {
-        //
-        //  :step 4:
-        //  We have 5+ reactions, we now need to update the cheeki-schedule message
-        //  Lets find/create the availability message for the relative epoch time
-        //
-        //  :step 4a:
-        //  first try to find the message with the epoch time
-        let channelMessages =
-          await cheekiScheduleChannelObject.messages.fetch();
-        let channelMessage = channelMessages.find(
-          (msg) => msg.content.includes(epochTime) && msg.author.bot == true
-        );
-        if (!channelMessage) {
-          //
-          //  :step 4b:
-          //  If there is no channel message, we need to create one
-          await cheekiScheduleChannelObject.send(
-            `========================================\n<t:${epochTime}:F>`
-          );
-        }
-      }
-    }
-  }
 
   //
-  //  Send the confirmation message to the confirmer
-  if (channel.name === "cheeki-schedule") {
-    //
-    //  :TODO:
-    //  If the same user has reacted to the same cheeki-schedule more then once, return
-    const userWhoReactedID = user.id;
-    await cheekiConfirmChannelObject
-      .send(`<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F> -- confirm <@${userToConfirmScrimID}>`)
-      .then(async (m) => {
-        await m.react("✅");
-        await m.react("❌");
-      });
+  //  :Handlers:
+  if (channel.name === "cheeki-breachability") { 
+    await cheekiMonke.handleCheekiBreachabilityReactionAdd(epochTime, messageFromChannel)
   }
-
+  if (channel.name === "cheeki-schedule") {
+    await cheekiMonke.handleCheekiScheduleReactionAdd(user, epochTime)
+  }
   if (channel.name === "cheeki-confirm" ) {
-    if (message.emoji.name === '✅') {
-      await message.message.delete()
-      const teamBreachersRole = await getSpecificRoleByName(client, "team-breachers");
-      await cheekiMatchesChannelObject.send(`${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`)
-      //
-      //  :TODO: 
-      //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well 
-    }
-    if (message.emoji.name === '❌') {
-      await message.message.delete()
-    }
+    await cheekiMonke.handleCheekiConfirmReactionAdd(message, epochTime)
   }
 });
 
