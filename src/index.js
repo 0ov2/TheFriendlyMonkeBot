@@ -9,7 +9,9 @@ const { setUpAvailabilityCronJobs } = require("./js/cron");
 const {
   getDiscordChannelObject,
   getDiscordChannelObjectByID,
+  getSpecificRoleByName,
 } = require("./js/util");
+const { CheekiMonke } = require("./js/classes/cheekiMonke");
 
 //
 //  :statics:
@@ -21,9 +23,14 @@ const client = new Client({
     "GUILD_MEMBERS",
     "GUILD_MESSAGES",
     "GUILD_MESSAGE_REACTIONS",
+    "DIRECT_MESSAGES",
   ],
 });
-const userToConfirmScrimID = '259466508814516224'
+const userToConfirmScrimID = "259466508814516224";
+
+//
+//  CheekMonke
+let cheekiMonke = null;
 
 //
 //  :runtime:
@@ -32,9 +39,17 @@ client.on("ready", async () => {
   //
   //  Lets set up our avilability cron
   setUpAvailabilityCronJobs(client);
+
+  //
+  //  set up our class instance
+  cheekiMonke = new CheekiMonke(client)
+  cheekiMonke.runtime()
 });
 
 client.on("messageReactionAdd", async (message, user) => {
+  if (user.bot) return; // Ignore messages from bots
+  cheekiMonke = new CheekiMonke(client)
+  cheekiMonke.runtime()
   //
   //  :step 1:
   //  Check if this message is from cheeki-breachability
@@ -46,6 +61,14 @@ client.on("messageReactionAdd", async (message, user) => {
     client,
     "cheeki-schedule"
   );
+  const cheekiConfirmChannelObject = await getDiscordChannelObject(
+    client,
+    "cheeki-confirm"
+  );
+  const cheekiMatchesChannelObject = await getDiscordChannelObject(
+    client,
+    "cheeki-matches"
+  );
   const messageFromChannel = await channel.messages.fetch(message.message.id);
   const messageContent = messageFromChannel.content;
   const regexOutput = messageContent.match(/<t:(\d+):F>/);
@@ -55,18 +78,16 @@ client.on("messageReactionAdd", async (message, user) => {
   if (regexOutput) {
     epochTime = regexOutput[1];
   }
+  if (channel.name === "cheeki-breachability") { 
+    await cheekiMonke.handleCheekiBreachabilityReactionAdd(epochTime, messageFromChannel)
 
-  if (channel.name === "cheeki-breachability") {
-    //
-    //  :step 2:
-    //  Get the amount of reactions and the epoch time from the message
     if (epochTime) {
       //
       //  :step 3:
       //  We've confirmed that the reaction is valid, now lets count how many other reactions are on this message
-      await messageFromChannel.reactions.cache.map(() => {
-        reactionCount += 1;
-      });
+      // await messageFromChannel.reactions.cache.map(() => {
+      //   reactionCount += 1;
+      // });
 
       if (reactionCount >= 1) {
         //
@@ -92,10 +113,34 @@ client.on("messageReactionAdd", async (message, user) => {
       }
     }
   }
+
+  //
+  //  Send the confirmation message to the confirmer
   if (channel.name === "cheeki-schedule") {
+    //
+    //  :TODO:
+    //  If the same user has reacted to the same cheeki-schedule more then once, return
     const userWhoReactedID = user.id;
-    const userToConfirmScrimObject = await client.users.fetch(userToConfirmScrimID);
-    await userToConfirmScrimObject.send(`<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F>`)
+    await cheekiConfirmChannelObject
+      .send(`<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F> -- confirm <@${userToConfirmScrimID}>`)
+      .then(async (m) => {
+        await m.react("✅");
+        await m.react("❌");
+      });
+  }
+
+  if (channel.name === "cheeki-confirm" ) {
+    if (message.emoji.name === '✅') {
+      await message.message.delete()
+      const teamBreachersRole = await getSpecificRoleByName(client, "team-breachers");
+      await cheekiMatchesChannelObject.send(`${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`)
+      //
+      //  :TODO: 
+      //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well 
+    }
+    if (message.emoji.name === '❌') {
+      await message.message.delete()
+    }
   }
 });
 
