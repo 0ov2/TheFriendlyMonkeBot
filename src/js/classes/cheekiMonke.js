@@ -1,6 +1,12 @@
 //
 //  :code:
-const { getDiscordChannelObject, getSpecificRoleByName } = require("../util");
+const {
+  getDiscordChannelObject,
+  getSpecificRoleByName,
+  deleteAllMessages,
+  getDiscordChannelObjectByID,
+  getUserObjectByID,
+} = require("../util");
 
 class CheekiMonke {
   constructor(client) {
@@ -13,6 +19,7 @@ class CheekiMonke {
     this.cheekiScheduleChannelObject = null;
     this.cheekiConfirmChannelObject = null;
     this.cheekiMatchesChannelObject = null;
+
     //
     // :other:
     this.minReactions = 1;
@@ -24,6 +31,7 @@ class CheekiMonke {
     this.matchesChannelName = "cheeki-matches";
     this.teamBreachersRoleName = "team-breachers";
     this.userToConfirmScrimID = "259466508814516224";
+    this.superPowers = ["259466508814516224"];
   }
 
   async runtime() {
@@ -78,7 +86,12 @@ class CheekiMonke {
 
   async handleCheekiScheduleReactionAdd(user, epochTime) {
     const userWhoReactedID = user.id;
-    await this.cheekiConfirmChannelObject
+
+    const c = await getDiscordChannelObject(
+      this.client,
+      this.confirmScrimChannelName
+    );
+    await c
       .send(
         `<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F> -- confirm <@${this.userToConfirmScrimID}>`
       )
@@ -86,20 +99,48 @@ class CheekiMonke {
         await m.react("✅");
         await m.react("❌");
       });
+
+    await user.send(
+      `Your scrim request for <t:${epochTime}:F> vs CHBR is PENDING`
+    );
   }
 
   async handleCheekiConfirmReactionAdd(message, epochTime) {
-    if (message.emoji.name === '✅') {
-        await message.message.delete()
-        const teamBreachersRole = await getSpecificRoleByName(this.client, this.teamBreachersRoleName);
-        await this.cheekiMatchesChannelObject.send(`${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`)
-        //
-        //  :TODO: 
-        //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well 
-      }
-      if (message.emoji.name === '❌') {
-        await message.message.delete()
-      }
+    //
+    //  :step 0:
+    //  Get the user object of the person who wants to scrim
+    const match = message.message.content.match(/<@(\d+)>/)[1];
+    const userWhoWantsToScrim = await getUserObjectByID(this.client, match)
+    
+    if (message.emoji.name === "✅") {
+      await message.message.delete();
+      const teamBreachersRole = await getSpecificRoleByName(
+        this.client,
+        this.teamBreachersRoleName
+      );
+      await this.cheekiMatchesChannelObject.send(
+        `${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`
+      );
+      await userWhoWantsToScrim.send(`Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`)
+
+      //
+      //  :TODO:
+      //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well - ask blackcat, should we?
+    }
+    if (message.emoji.name === "❌") {
+      await message.message.delete();
+      await userWhoWantsToScrim.send(`Your scrim request for <t:${epochTime}:F> vs CHBR has been DECLINED`) 
+    }
+  }
+
+  async bulkDeleteMessagesInThisChannel(message) {
+    let channelName = getDiscordChannelObjectByID(
+      this.client,
+      message.channelId
+    ).name;
+    if (this.superPowers.includes(message.author.id)) {
+      await deleteAllMessages(this.client, channelName);
+    }
   }
 }
 

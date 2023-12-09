@@ -30,7 +30,6 @@ const userToConfirmScrimID = "259466508814516224";
 
 //
 //  CheekMonke
-let cheekiMonke = null;
 
 //
 //  :runtime:
@@ -39,21 +38,28 @@ client.on("ready", async () => {
   //
   //  Lets set up our avilability cron
   setUpAvailabilityCronJobs(client);
-
-  //
-  //  set up our class instance
-  cheekiMonke = new CheekiMonke(client)
-  cheekiMonke.runtime()
 });
 
+client.on('messageCreate', async (message) => {
+  let cheekiMonke = new CheekiMonke(client)
+  cheekiMonke.runtime()
+
+  if (message.content === "/bdel") {
+    cheekiMonke.bulkDeleteMessagesInThisChannel(message)
+  }
+})
+
 client.on("messageReactionAdd", async (message, user) => {
-  if (user.bot) return; // Ignore messages from bots
-  cheekiMonke = new CheekiMonke(client)
+  if (user.bot) return;
+  let cheekiMonke = new CheekiMonke(client)
   cheekiMonke.runtime()
 
   //
   //  :step 1:
   //  Check if this message is from cheeki-breachability
+  //
+  //  :TODO:
+  //  Clean this, move to class runtime
   const channel = getDiscordChannelObjectByID(
     client,
     message.message.channelId

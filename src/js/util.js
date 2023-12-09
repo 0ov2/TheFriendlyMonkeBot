@@ -1,6 +1,5 @@
 const getDiscordChannelObject = (client, channelName) => {
     const channelObject = client.channels.cache.find(channel => channel.name === channelName)
-
     return channelObject ? channelObject : console.log("Cannot find channel: ", channelName)
 }
 
@@ -22,4 +21,8 @@ const deleteAllMessages = async (client, channelName) => {
     await channel.bulkDelete(100);
 }
 
-module.exports = {getDiscordChannelObject, getSpecificRoleByName, deleteAllMessages, getDiscordChannelObjectByID}
+const getUserObjectByID = async (client, id) => {
+    return await client.users.fetch(id) || null
+}
+
+module.exports = {getDiscordChannelObject, getSpecificRoleByName, deleteAllMessages, getDiscordChannelObjectByID, getUserObjectByID}
