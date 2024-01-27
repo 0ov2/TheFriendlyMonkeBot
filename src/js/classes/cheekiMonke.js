@@ -22,7 +22,7 @@ class CheekiMonke {
 
     //
     // :other:
-    this.minReactions = 1;
+    this.minReactions = 5;
 
     //
     //  :statics:
@@ -110,8 +110,8 @@ class CheekiMonke {
     //  :step 0:
     //  Get the user object of the person who wants to scrim
     const match = message.message.content.match(/<@(\d+)>/)[1];
-    const userWhoWantsToScrim = await getUserObjectByID(this.client, match)
-    
+    const userWhoWantsToScrim = await getUserObjectByID(this.client, match);
+
     if (message.emoji.name === "✅") {
       await message.message.delete();
       const teamBreachersRole = await getSpecificRoleByName(
@@ -121,15 +121,70 @@ class CheekiMonke {
       await this.cheekiMatchesChannelObject.send(
         `${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`
       );
-      await userWhoWantsToScrim.send(`Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`)
+      await userWhoWantsToScrim.send(
+        `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
+      );
 
       //
       //  :TODO:
       //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well - ask blackcat, should we?
+      //
+      //  Find the reference of the confirmed match in cheeki-breachality
+      const cheekiBreachabilityChannelObject = await getDiscordChannelObject(this.client, 'cheeki-schedule')
+      let channelMessages = await cheekiBreachabilityChannelObject.messages.fetch();
+      let channelMessage = channelMessages.find(
+        (msg) => msg.content.includes(epochTime) && msg.author.bot == true
+      );
+      if (channelMessage) {
+        //  If there is a message with this epoch time, we need to delete it
+        try {
+          await channelMessage.delete();
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }
     if (message.emoji.name === "❌") {
-      await message.message.delete();
-      await userWhoWantsToScrim.send(`Your scrim request for <t:${epochTime}:F> vs CHBR has been DECLINED`) 
+      try {
+        await message.message.delete();
+        await userWhoWantsToScrim.send(
+          `Your scrim request for <t:${epochTime}:F> vs CHBR has been DECLINED`
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async handleCheekiScheduleReactionRemove(epochTime, messageFromChannel) {
+    let reactionCount = null;
+
+    await messageFromChannel.reactions.cache.map(() => {
+      reactionCount += 1;
+    });
+
+    if (reactionCount <= 0) {
+      const cheekiScheduleChannelObject = await getDiscordChannelObject(
+        this.client,
+        "cheeki-schedule"
+      );
+      //
+      //  :step 4a:
+      //  first try to find the message with the epoch time
+      let channelMessages = await cheekiScheduleChannelObject.messages.fetch();
+      let channelMessage = channelMessages.find(
+        (msg) => msg.content.includes(epochTime) && msg.author.bot == true
+      );
+      if (channelMessage) {
+        //
+        //  :step 4b:
+        //  If there is a message with this epoch time, we need to delete it
+        try {
+          await channelMessage.delete();
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }
   }
 
@@ -139,7 +194,11 @@ class CheekiMonke {
       message.channelId
     ).name;
     if (this.superPowers.includes(message.author.id)) {
-      await deleteAllMessages(this.client, channelName);
+      try {
+        await deleteAllMessages(this.client, channelName);
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 }
