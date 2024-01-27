@@ -126,8 +126,7 @@ class CheekiMonke {
       );
 
       //
-      //  :TODO:
-      //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well - ask blackcat, should we?
+      //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well
       //
       //  Find the reference of the confirmed match in cheeki-breachality
       const cheekiBreachabilityChannelObject = await getDiscordChannelObject(this.client, 'cheeki-schedule')
@@ -136,6 +135,7 @@ class CheekiMonke {
         (msg) => msg.content.includes(epochTime) && msg.author.bot == true
       );
       if (channelMessage) {
+        //
         //  If there is a message with this epoch time, we need to delete it
         try {
           await channelMessage.delete();
