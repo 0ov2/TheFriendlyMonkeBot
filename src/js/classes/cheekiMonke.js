@@ -30,8 +30,8 @@ class CheekiMonke {
     this.confirmScrimChannelName = "cheeki-confirm";
     this.matchesChannelName = "cheeki-matches";
     this.teamBreachersRoleName = "team-breachers";
-    this.userToConfirmScrimID = "259466508814516224";
-    this.superPowers = ["259466508814516224"];
+    this.userToConfirmScrimID = "206848734867226634";
+    this.superPowers = ["259466508814516224", "206848734867226634", "156861171062931456"];
   }
 
   async runtime() {
