@@ -6,11 +6,7 @@ require("dotenv").config();
 //
 //  :code:
 const { setUpAvailabilityCronJobs } = require("./js/cron");
-const {
-  getDiscordChannelObject,
-  getDiscordChannelObjectByID,
-  getSpecificRoleByName,
-} = require("./js/util");
+const { getDiscordChannelObjectByID } = require("./js/util");
 const { CheekiMonke } = require("./js/classes/cheekiMonke");
 
 //
@@ -55,7 +51,7 @@ client.on("messageReactionAdd", async (message, user) => {
   let epochTime = null;
   let cheekiMonke = new CheekiMonke(client);
   cheekiMonke.runtime();
-  
+
   const channel = getDiscordChannelObjectByID(
     client,
     message.message.channelId
@@ -108,7 +104,10 @@ client.on("messageReactionRemove", async (message, user) => {
   }
 
   if (channel.name === "cheeki-breachability") {
-    cheekiMonke.handleCheekiScheduleReactionRemove(epochTime, messageFromChannel);
+    cheekiMonke.handleCheekiScheduleReactionRemove(
+      epochTime,
+      messageFromChannel
+    );
   }
 });
 

@@ -78,7 +78,7 @@ class CheekiMonke {
         //  :step 4b:
         //  If there is no channel message, we need to create one
         await this.cheekiScheduleChannelObject.send(
-          `========================================\n<t:${epochTime}:F>`
+          `====================================\n<t:${epochTime}:F>`
         );
       }
     }

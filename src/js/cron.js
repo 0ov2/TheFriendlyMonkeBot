@@ -37,13 +37,13 @@ const setUpAvailabilityCronJobs = async (client) => {
     await channleObject.send(
       "<@&" + role + ">"
     );
-    channleObject.send(`========================================\n<t:${epochArray[0].epoch}:F>`);
-    channleObject.send(`========================================\n<t:${epochArray[1].epoch}:F>`);
-    channleObject.send(`========================================\n<t:${epochArray[2].epoch}:F>`);
-    channleObject.send(`========================================\n<t:${epochArray[3].epoch}:F>`);
-    channleObject.send(`========================================\n<t:${epochArray[4].epoch}:F>`);
-    channleObject.send(`========================================\n<t:${epochArray[5].epoch}:F>`);
-    channleObject.send(`========================================\n<t:${epochArray[6].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[0].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[1].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[2].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[3].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[4].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[5].epoch}:F>`);
+    channleObject.send(`====================================\n<t:${epochArray[6].epoch}:F>`);
   });
 };
 
