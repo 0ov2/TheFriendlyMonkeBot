@@ -22,7 +22,6 @@ const client = new Client({
     "DIRECT_MESSAGES",
   ],
 });
-const userToConfirmScrimID = "259466508814516224";
 
 //
 //  CheekMonke
