@@ -84,25 +84,27 @@ class CheekiMonke {
     }
   }
 
-  async handleCheekiScheduleReactionAdd(user, epochTime) {
+  async handleCheekiScheduleReactionAdd(message, user, epochTime) {
     const userWhoReactedID = user.id;
+    if (message.message.author.id !== "1200907442087788686" || message.message.author.id !== "1182020808219033740") {
+      const c = await getDiscordChannelObject(
+        this.client,
+        this.confirmScrimChannelName
+      );
+      await c
+        .send(
+          `<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F> -- confirm <@${this.userToConfirmScrimID}>`
+        )
+        .then(async (m) => {
+          await m.react("✅");
+          await m.react("❌");
+        });
+  
+      await user.send(
+        `Your scrim request for <t:${epochTime}:F> vs CHBR is PENDING`
+      );
+    }
 
-    const c = await getDiscordChannelObject(
-      this.client,
-      this.confirmScrimChannelName
-    );
-    await c
-      .send(
-        `<@${userWhoReactedID}> Wants to scrim on <t:${epochTime}:F> -- confirm <@${this.userToConfirmScrimID}>`
-      )
-      .then(async (m) => {
-        await m.react("✅");
-        await m.react("❌");
-      });
-
-    await user.send(
-      `Your scrim request for <t:${epochTime}:F> vs CHBR is PENDING`
-    );
   }
 
   async handleCheekiConfirmReactionAdd(message, epochTime) {
