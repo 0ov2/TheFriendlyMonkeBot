@@ -31,7 +31,14 @@ class CheekiMonke {
     this.matchesChannelName = "cheeki-matches";
     this.teamBreachersRoleName = "team-breachers";
     this.userToConfirmScrimID = "206848734867226634";
-    this.superPowers = ["259466508814516224", "206848734867226634", "156861171062931456"];
+    this.superPowers = [
+      "259466508814516224",
+      "206848734867226634",
+      "156861171062931456",
+    ];
+    this.captainIDMapping = {
+      "640090857147596810": "BLAZE",
+    };
   }
 
   async runtime() {
@@ -86,7 +93,10 @@ class CheekiMonke {
 
   async handleCheekiScheduleReactionAdd(message, user, epochTime) {
     const userWhoReactedID = user.id;
-    if (message.message.author.id !== "1200907442087788686" || message.message.author.id !== "1182020808219033740") {
+    if (
+      message.message.author.id !== "1200907442087788686" ||
+      message.message.author.id !== "1182020808219033740"
+    ) {
       const c = await getDiscordChannelObject(
         this.client,
         this.confirmScrimChannelName
@@ -99,17 +109,23 @@ class CheekiMonke {
           await m.react("✅");
           await m.react("❌");
         });
-  
+
       await user.send(
         `Your scrim request for <t:${epochTime}:F> vs CHBR is PENDING`
       );
     }
-
   }
 
   async handleCheekiConfirmReactionAdd(message, epochTime) {
+    const regex = /<@(\d+)>/;
+    let matched = message.message.content.match(regex);
+    let vs = null
+    if (matched && matched[1]) {
+      vs = this.captainIDMapping[matched[1]] || 'TBD';
+    }
+
     if (message.emoji.name === "❓") {
-      return
+      return;
     }
     //
     //  :step 0:
@@ -124,7 +140,7 @@ class CheekiMonke {
         this.teamBreachersRoleName
       );
       await this.cheekiMatchesChannelObject.send(
-        `${teamBreachersRole}\nSCRIM vs TBD @ <t:${epochTime}:F>`
+        `${teamBreachersRole}\nSCRIM vs ${vs} @ <t:${epochTime}:F>`
       );
       await userWhoWantsToScrim.send(
         `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
@@ -134,8 +150,12 @@ class CheekiMonke {
       //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well
       //
       //  Find the reference of the confirmed match in cheeki-breachality
-      const cheekiBreachabilityChannelObject = await getDiscordChannelObject(this.client, 'cheeki-schedule')
-      let channelMessages = await cheekiBreachabilityChannelObject.messages.fetch();
+      const cheekiBreachabilityChannelObject = await getDiscordChannelObject(
+        this.client,
+        "cheeki-schedule"
+      );
+      let channelMessages =
+        await cheekiBreachabilityChannelObject.messages.fetch();
       let channelMessage = channelMessages.find(
         (msg) => msg.content.includes(epochTime) && msg.author.bot == true
       );
@@ -211,30 +231,31 @@ class CheekiMonke {
     let channelObject = getDiscordChannelObjectByID(
       this.client,
       message.channelId
-    )
+    );
 
-    if (channelObject && this.superPowers.includes(message.author.id)){
+    if (channelObject && this.superPowers.includes(message.author.id)) {
       await channelObject.send("YES I AM HEHE").then(async (m) => {
         await m.react("❓");
-      })
+      });
     }
   }
 
   async deleteTestMessage(message, user) {
     try {
       if (this.superPowers.includes(user.id)) {
-        await message.message.delete()
+        await message.message.delete();
         let channelObject = getDiscordChannelObjectByID(
           this.client,
           message.message.channelId
-        )
+        );
         let channelMessages = await channelObject.messages.fetch();
         let channelMessage = channelMessages.find(
-          (msg) => msg.content.includes("!areyoualive") && msg.author.bot == false
+          (msg) =>
+            msg.content.includes("!areyoualive") && msg.author.bot == false
         );
-  
+
         if (channelMessage) {
-          await channelMessage.delete()
+          await channelMessage.delete();
         }
       }
     } catch (error) {

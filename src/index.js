@@ -87,7 +87,7 @@ client.on("messageReactionAdd", async (message, user) => {
     await cheekiMonke.handleCheekiConfirmReactionAdd(message, epochTime);
   }
 
-  if (message.emoji.name === "❓") {
+  if (message.emoji.name === "❓" && channel.name !== "cheeki-breachability") {
     cheekiMonke.deleteTestMessage(message, user)
   }
 });
