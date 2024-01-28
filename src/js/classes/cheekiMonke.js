@@ -108,6 +108,9 @@ class CheekiMonke {
   }
 
   async handleCheekiConfirmReactionAdd(message, epochTime) {
+    if (message.emoji.name === "❓") {
+      return
+    }
     //
     //  :step 0:
     //  Get the user object of the person who wants to scrim
