@@ -69,9 +69,6 @@ client.on("messageReactionAdd", async (message, user) => {
     epochTime = regexOutput[1];
   }
 
-  if (!epochTime) {
-    return;
-  }
   //
   //  :Handlers:
   if (channel.name === "cheeki-breachability") {
@@ -81,6 +78,9 @@ client.on("messageReactionAdd", async (message, user) => {
     );
   }
   if (channel.name === "cheeki-schedule") {
+    if (!epochTime) {
+      return;
+    }
     await cheekiMonke.handleCheekiScheduleReactionAdd(message, user, epochTime);
   }
   if (channel.name === "cheeki-confirm") {
