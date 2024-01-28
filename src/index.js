@@ -42,6 +42,12 @@ client.on("messageCreate", async (message) => {
   if (message.content === "/bdel") {
     cheekiMonke.bulkDeleteMessagesInThisChannel(message);
   }
+
+  //
+  //  For testing
+  if (message.content === "!areyoualive") {
+    cheekiMonke.testWeHaveWhatWeNeed(message)
+  } 
 });
 
 client.on("messageReactionAdd", async (message, user) => {
@@ -76,6 +82,10 @@ client.on("messageReactionAdd", async (message, user) => {
   }
   if (channel.name === "cheeki-confirm") {
     await cheekiMonke.handleCheekiConfirmReactionAdd(message, epochTime);
+  }
+
+  if (message.emoji.name === "❓") {
+    cheekiMonke.deleteTestMessage(message, user)
   }
 });
 

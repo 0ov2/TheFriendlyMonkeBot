@@ -201,6 +201,41 @@ class CheekiMonke {
       }
     }
   }
+
+  async testWeHaveWhatWeNeed(message) {
+    let channelObject = getDiscordChannelObjectByID(
+      this.client,
+      message.channelId
+    )
+
+    if (channelObject && this.superPowers.includes(message.author.id)){
+      await channelObject.send("YES I AM HEHE").then(async (m) => {
+        await m.react("❓");
+      })
+    }
+  }
+
+  async deleteTestMessage(message, user) {
+    try {
+      if (this.superPowers.includes(user.id)) {
+        await message.message.delete()
+        let channelObject = getDiscordChannelObjectByID(
+          this.client,
+          message.message.channelId
+        )
+        let channelMessages = await channelObject.messages.fetch();
+        let channelMessage = channelMessages.find(
+          (msg) => msg.content.includes("!areyoualive") && msg.author.bot == false
+        );
+  
+        if (channelMessage) {
+          await channelMessage.delete()
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 module.exports = { CheekiMonke };
