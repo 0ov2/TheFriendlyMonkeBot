@@ -17,8 +17,12 @@ const getSpecificRoleByName = (client, roleName) => {
 }
 
 const deleteAllMessages = async (client, channelName) => {
-    const channel = getDiscordChannelObject(client, channelName)
-    await channel.bulkDelete(100);
+    try {
+        const channel = getDiscordChannelObject(client, channelName)
+        await channel.bulkDelete(100);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 const getUserObjectByID = async (client, id) => {

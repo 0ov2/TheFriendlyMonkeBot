@@ -5,7 +5,7 @@ require("dotenv").config();
 
 //
 //  :code:
-const { setUpAvailabilityCronJobs } = require("./js/cron");
+const { setUpAvailabilityCronJobs, manualPostAv } = require("./js/cron");
 const { getDiscordChannelObjectByID } = require("./js/util");
 const { CheekiMonke } = require("./js/classes/cheekiMonke");
 
@@ -22,6 +22,12 @@ const client = new Client({
     "DIRECT_MESSAGES",
   ],
 });
+
+const superPowers = [
+  "259466508814516224",
+  "206848734867226634",
+  "156861171062931456",
+];
 
 //
 //  CheekMonke
@@ -48,6 +54,10 @@ client.on("messageCreate", async (message) => {
   if (message.content === "!areyoualive") {
     cheekiMonke.testWeHaveWhatWeNeed(message)
   } 
+
+  if (message.content === "!pa" && superPowers.includes(message.author.id)) {
+    manualPostAv(client)
+  }
 });
 
 client.on("messageReactionAdd", async (message, user) => {
