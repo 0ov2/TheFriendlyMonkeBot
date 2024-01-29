@@ -58,6 +58,10 @@ client.on("messageCreate", async (message) => {
   if (message.content === "!pa" && superPowers.includes(message.author.id)) {
     manualPostAv(client)
   }
+
+  if (message.content.includes("!cmatch")) {
+    cheekiMonke.confirmMatch(message)
+  }
 });
 
 client.on("messageReactionAdd", async (message, user) => {

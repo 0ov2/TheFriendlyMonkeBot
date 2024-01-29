@@ -64,6 +64,9 @@ class CheekiMonke {
     if (!epochTime || !messageFromChannel) {
       return;
     }
+    if (messageFromChannel.content.includes("<C>")) {
+      return;
+    }
     //
     // Get what we will need for the handler
     let channelMessages =
@@ -119,9 +122,9 @@ class CheekiMonke {
   async handleCheekiConfirmReactionAdd(message, epochTime) {
     const regex = /<@(\d+)>/;
     let matched = message.message.content.match(regex);
-    let vs = null
+    let vs = null;
     if (matched && matched[1]) {
-      vs = this.captainIDMapping[matched[1]] || 'TBD';
+      vs = this.captainIDMapping[matched[1]] || "TBD";
     }
 
     if (message.emoji.name === "❓") {
@@ -145,6 +148,7 @@ class CheekiMonke {
       await userWhoWantsToScrim.send(
         `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
       );
+      await this.confirmMatch(message, epochTime);
 
       //
       //  If this scrim is confirmed, we need to delete the cheeki-schedule message as well
@@ -257,6 +261,72 @@ class CheekiMonke {
         if (channelMessage) {
           await channelMessage.delete();
         }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async confirmMatch(message, epochTime) {
+    try {
+      if ((!this.superPowers.includes(message?.author?.id) || !this.superPowers.includes(message?.message?.author?.id)) ) {
+        if (message.message?.author?.bot === false) {
+          return;
+        }
+      }
+      let numberString = null;
+      //
+      //  If we already have an epoch, we can update the known message
+      if (epochTime) {
+        const ChannelObject = await getDiscordChannelObject(
+          this.client,
+          "cheeki-breachability"
+        );
+        let channelMessages =
+          await ChannelObject.messages.fetch();
+        let channelMessage = channelMessages.find(
+          (msg) => msg.content.includes(epochTime) && msg.author.bot == true
+        );
+
+        if (channelMessage) {
+          channelMessage.edit(`${channelMessage.content} <C>`);
+        }
+
+        return;
+      }
+
+      if (this.superPowers.includes(message.author.id)) {
+        //
+        //  :step 1:
+        //  extract the message ID from the message
+        const regex = /!cmatch (\d+)/;
+        const match = message.content.match(regex);
+
+        if (match) {
+          numberString = match[1];
+        } else {
+          return;
+        }
+
+        //
+        //  :step 2:
+        //  find the message with the message ID
+        message.channel.messages.fetch(numberString).then((message) => {
+          //
+          //  :step 3:
+          //  Edit the message to include <c>
+          if (message.content.includes("<c>")) {
+            return;
+          }
+          message.edit(`${message.content} <C>`);
+        });
+
+        //
+        //  :step 4:
+        //  Delete the command message
+        await message.delete();
+
+        return;
       }
     } catch (error) {
       console.log(error);
