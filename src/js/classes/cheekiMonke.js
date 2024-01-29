@@ -188,7 +188,7 @@ class CheekiMonke {
       reactionCount += 1;
     });
 
-    if (reactionCount <= 0) {
+    if (reactionCount < 5) {
       const cheekiScheduleChannelObject = await getDiscordChannelObject(
         this.client,
         "cheeki-schedule"
