@@ -38,6 +38,8 @@ class CheekiMonke {
     ];
     this.captainIDMapping = {
       "640090857147596810": "BLAZE",
+      "559803574784098306": "TBD",
+      "941846059834044487": "French Resistance"
     };
   }
 
@@ -96,6 +98,9 @@ class CheekiMonke {
 
   async handleCheekiScheduleReactionAdd(message, user, epochTime) {
     const userWhoReactedID = user.id;
+    if (userWhoReactedID && !this.captainIDMapping[userWhoReactedID]){
+      return
+    }
     if (
       message.message.author.id !== "1200907442087788686" ||
       message.message.author.id !== "1182020808219033740"
