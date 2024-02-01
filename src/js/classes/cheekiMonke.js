@@ -6,6 +6,7 @@ const {
   deleteAllMessages,
   getDiscordChannelObjectByID,
   getUserObjectByID,
+  hasUSerReactedMoreThenOnce,
 } = require("../util");
 
 class CheekiMonke {
@@ -98,6 +99,10 @@ class CheekiMonke {
 
   async handleCheekiScheduleReactionAdd(message, user, epochTime) {
     const userWhoReactedID = user.id;
+    const hasUserReactedMoreThenOnce = await hasUSerReactedMoreThenOnce(this.client, message, userWhoReactedID)
+    if (hasUserReactedMoreThenOnce) {
+      return
+    }
     if (userWhoReactedID && !this.captainIDMapping[userWhoReactedID]){
       return
     }

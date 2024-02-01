@@ -29,4 +29,14 @@ const getUserObjectByID = async (client, id) => {
     return await client.users.fetch(id) || null
 }
 
-module.exports = {getDiscordChannelObject, getSpecificRoleByName, deleteAllMessages, getDiscordChannelObjectByID, getUserObjectByID}
+const hasUSerReactedMoreThenOnce = async (client, message, userID) => {
+    message.message.reactions.cache.forEach(async(reaction) => {
+        const emojiName = reaction._emoji.name
+        const emojiCount = reaction.count
+        const reactionUsers = await reaction.users.fetch();
+        console.log(reactionUsers);
+    });
+    return true
+}
+
+module.exports = {getDiscordChannelObject, getSpecificRoleByName, deleteAllMessages, getDiscordChannelObjectByID, getUserObjectByID, hasUSerReactedMoreThenOnce}

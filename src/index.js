@@ -86,23 +86,39 @@ client.on("messageReactionAdd", async (message, user) => {
   //
   //  :Handlers:
   if (channel.name === "cheeki-breachability") {
-    await cheekiMonke.handleCheekiBreachabilityReactionAdd(
-      epochTime,
-      messageFromChannel
-    );
+    try {
+      await cheekiMonke.handleCheekiBreachabilityReactionAdd(
+        epochTime,
+        messageFromChannel
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
   if (channel.name === "cheeki-schedule") {
     if (!epochTime) {
       return;
     }
-    await cheekiMonke.handleCheekiScheduleReactionAdd(message, user, epochTime);
+    try {
+      await cheekiMonke.handleCheekiScheduleReactionAdd(message, user, epochTime);
+    } catch (error) {
+      console.log(error);
+    }
   }
   if (channel.name === "cheeki-confirm") {
-    await cheekiMonke.handleCheekiConfirmReactionAdd(message, epochTime);
+    try {
+      await cheekiMonke.handleCheekiConfirmReactionAdd(message, epochTime);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   if (message.emoji.name === "❓" && channel.name !== "cheeki-breachability") {
-    cheekiMonke.deleteTestMessage(message, user)
+    try {
+      cheekiMonke.deleteTestMessage(message, user)
+    } catch (error) {
+      console.log(error);
+    }
   }
 });
 
@@ -130,10 +146,14 @@ client.on("messageReactionRemove", async (message, user) => {
   }
 
   if (channel.name === "cheeki-breachability") {
-    cheekiMonke.handleCheekiScheduleReactionRemove(
-      epochTime,
-      messageFromChannel
-    );
+    try {
+      cheekiMonke.handleCheekiScheduleReactionRemove(
+        epochTime,
+        messageFromChannel
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 });
 
