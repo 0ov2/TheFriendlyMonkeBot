@@ -72,8 +72,12 @@ class CheekiMonke {
     }
     //
     // Get what we will need for the handler
+    const cheekiScheduleChannelObject = await getDiscordChannelObject(
+      this.client,
+      "cheeki-schedule"
+    );
     let channelMessages =
-      await this.cheekiScheduleChannelObject.messages.fetch();
+      await cheekiScheduleChannelObject.messages.fetch();
     let channelMessage = channelMessages.find(
       (msg) => msg.content.includes(epochTime) && msg.author.bot == true
     );
@@ -90,7 +94,7 @@ class CheekiMonke {
         //
         //  :step 4b:
         //  If there is no channel message, we need to create one
-        await this.cheekiScheduleChannelObject.send(
+        await cheekiScheduleChannelObject.send(
           `====================================\n<t:${epochTime}:F>`
         );
       }
