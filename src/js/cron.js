@@ -16,7 +16,7 @@ const setUpAvailabilityCronJobs = async (client) => {
   const role = getSpecificRoleByName(client, "team-breachers");
 
   //  OP availability
-  schedule.scheduleJob("0 18 * * 0", async () => {
+  schedule.scheduleJob("0 11 * * 0", async () => {
     // 0 18 * * 0
     //
     //  :step 0:
