@@ -6,7 +6,6 @@ const {
   deleteAllMessages,
   getDiscordChannelObjectByID,
   getUserObjectByID,
-  hasUSerReactedMoreThenOnce,
   hasUserReactedMoreThenOnce,
 } = require("../util");
 
