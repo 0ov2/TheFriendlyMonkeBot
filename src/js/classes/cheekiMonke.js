@@ -7,6 +7,7 @@ const {
   getDiscordChannelObjectByID,
   getUserObjectByID,
   hasUSerReactedMoreThenOnce,
+  hasUserReactedMoreThenOnce,
 } = require("../util");
 
 class CheekiMonke {
@@ -40,7 +41,10 @@ class CheekiMonke {
     this.captainIDMapping = {
       "640090857147596810": "BLAZE",
       "559803574784098306": "TBD",
-      "941846059834044487": "French Resistance"
+      "941846059834044487": "French Resistance",
+      "476820745113042955": "Nexus",
+      "510476673146421258": "RCL",
+      "780046286388461568": ".COM"
     };
   }
 
@@ -103,6 +107,8 @@ class CheekiMonke {
 
   async handleCheekiScheduleReactionAdd(message, user, epochTime) {
     const userWhoReactedID = user.id;
+    // await hasUserReactedMoreThenOnce(this.client, message, userWhoReactedID)
+    // return
     /*
     const hasUserReactedMoreThenOnce = await hasUSerReactedMoreThenOnce(this.client, message, userWhoReactedID)
     if (hasUserReactedMoreThenOnce) {
