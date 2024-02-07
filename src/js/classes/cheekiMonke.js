@@ -257,9 +257,9 @@ class CheekiMonke {
 
     if (cheekiMatchesReactionCount >= this.minReactions) {
       if (!messageFromChannel.content.includes("--Confirmed With Captain--")) {
-        await captainUserObject.send(
-          `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
-        );
+        // await captainUserObject.send(
+        //   `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
+        // );
         await messageFromChannel.edit(
           `--Confirmed With Captain--\n${messageFromChannel.content}`
         );
