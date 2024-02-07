@@ -320,6 +320,25 @@ class CheekiMonke {
     }
   }
 
+  async deleteMessagesInThisChannel(message) {
+    let numberString = null
+    if (this.superPowers.includes(message.author.id)) {
+      const regex = /!delm (\d+)/;
+      const match = message.content.match(regex);
+      if (match) {
+        numberString = match[1];
+      } else {
+        return;
+      }
+
+      await message.channel.messages.fetch(numberString).then(async (msg) => {
+        await msg.delete().then(async () => {
+          await message.delete()
+        })
+      });
+    }
+  }
+
   async testWeHaveWhatWeNeed(message) {
     let channelObject = getDiscordChannelObjectByID(
       this.client,

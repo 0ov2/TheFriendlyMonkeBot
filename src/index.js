@@ -62,6 +62,10 @@ client.on("messageCreate", async (message) => {
   if (message.content.includes("!cmatch")) {
     cheekiMonke.confirmMatch(message)
   }
+
+  if (message.content.includes("!delm")) {
+    cheekiMonke.deleteMessagesInThisChannel(message);
+  }
 });
 
 client.on("messageReactionAdd", async (message, user) => {
