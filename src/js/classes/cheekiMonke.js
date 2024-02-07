@@ -43,7 +43,7 @@ class CheekiMonke {
       "941846059834044487": "French Resistance",
       "476820745113042955": "Nexus",
       "510476673146421258": "RCL",
-      "780046286388461568": ".COM"
+      "259466508814516224": ".COM",
     };
   }
 
@@ -79,8 +79,7 @@ class CheekiMonke {
       this.client,
       "cheeki-schedule"
     );
-    let channelMessages =
-      await cheekiScheduleChannelObject.messages.fetch();
+    let channelMessages = await cheekiScheduleChannelObject.messages.fetch();
     let channelMessage = channelMessages.find(
       (msg) => msg.content.includes(epochTime) && msg.author.bot == true
     );
@@ -114,8 +113,8 @@ class CheekiMonke {
       return
     }
     */
-    if (userWhoReactedID && !this.captainIDMapping[userWhoReactedID]){
-      return
+    if (userWhoReactedID && !this.captainIDMapping[userWhoReactedID]) {
+      return;
     }
     if (
       message.message.author.id !== "1200907442087788686" ||
@@ -164,11 +163,9 @@ class CheekiMonke {
         this.teamBreachersRoleName
       );
       await this.cheekiMatchesChannelObject.send(
-        `${teamBreachersRole}\nSCRIM vs ${vs} @ <t:${epochTime}:F>`
+        `${teamBreachersRole}\nSCRIM vs ${vs} @ <t:${epochTime}:F>\nEnemy Captain - ${userWhoWantsToScrim}`
       );
-      await userWhoWantsToScrim.send(
-        `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
-      );
+
       await this.confirmMatch(message, epochTime);
 
       //
@@ -238,6 +235,77 @@ class CheekiMonke {
     }
   }
 
+  async handleCheekiMatchesReactionAdd(epochTime, messageFromChannel) {
+    let captainUserObject = null;
+    let cheekiMatchesReactionCount = 0;
+
+    if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
+      captainUserObject = await getUserObjectByID(
+        this.client,
+        messageFromChannel.content.match(/<@(\d+)>/)[1]
+      );
+    } else {
+      return;
+    }
+    if (!epochTime || !messageFromChannel) {
+      return;
+    }
+
+    await messageFromChannel.reactions.cache.map(() => {
+      cheekiMatchesReactionCount += 1;
+    });
+
+    if (cheekiMatchesReactionCount >= this.minReactions) {
+      if (!messageFromChannel.content.includes("--Confirmed With Captain--")) {
+        await captainUserObject.send(
+          `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
+        );
+        await messageFromChannel.edit(
+          `--Confirmed With Captain--\n${messageFromChannel.content}`
+        );
+      }
+    }
+
+    if (!messageFromChannel.content.includes('Players - ')) {
+      await messageFromChannel.edit(
+        `${messageFromChannel.content}\nPlayers - ${cheekiMatchesReactionCount}`
+      );
+    } else {
+      const editedString = messageFromChannel.content.replace(/(Players - )\d+/, `$1${cheekiMatchesReactionCount}`)
+      await messageFromChannel.edit(editedString);
+    }
+  }
+
+  async handleCheekiMatchesReactionRemove(epochTime, messageFromChannel) {
+    let captainUserObject = null;
+    let cheekiMatchesReactionCount = 0;
+
+    if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
+      captainUserObject = await getUserObjectByID(
+        this.client,
+        messageFromChannel.content.match(/<@(\d+)>/)[1]
+      );
+    } else {
+      return;
+    }
+    if (!epochTime || !messageFromChannel) {
+      return;
+    }
+
+    await messageFromChannel.reactions.cache.map(() => {
+      cheekiMatchesReactionCount += 1;
+    });
+
+    if (!messageFromChannel.content.includes('Players - ')) {
+      await messageFromChannel.edit(
+        `${messageFromChannel.content}\nPlayers - ${cheekiMatchesReactionCount}`
+      );
+    } else {
+      const editedString = messageFromChannel.content.replace(/(Players - )\d+/, `$1${cheekiMatchesReactionCount}`)
+      await messageFromChannel.edit(editedString);
+    }
+  }
+
   async bulkDeleteMessagesInThisChannel(message) {
     let channelName = getDiscordChannelObjectByID(
       this.client,
@@ -290,7 +358,10 @@ class CheekiMonke {
 
   async confirmMatch(message, epochTime) {
     try {
-      if ((!this.superPowers.includes(message?.author?.id) || !this.superPowers.includes(message?.message?.author?.id)) ) {
+      if (
+        !this.superPowers.includes(message?.author?.id) ||
+        !this.superPowers.includes(message?.message?.author?.id)
+      ) {
         if (message.message?.author?.bot === false) {
           return;
         }
@@ -303,8 +374,7 @@ class CheekiMonke {
           this.client,
           "cheeki-breachability"
         );
-        let channelMessages =
-          await ChannelObject.messages.fetch();
+        let channelMessages = await ChannelObject.messages.fetch();
         let channelMessage = channelMessages.find(
           (msg) => msg.content.includes(epochTime) && msg.author.bot == true
         );

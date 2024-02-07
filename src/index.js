@@ -120,6 +120,17 @@ client.on("messageReactionAdd", async (message, user) => {
       console.log(error);
     }
   }
+
+  if (channel.name === "cheeki-matches") {
+    try {
+      await cheekiMonke.handleCheekiMatchesReactionAdd(
+        epochTime,
+        messageFromChannel
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
 });
 
 client.on("messageReactionRemove", async (message, user) => {
@@ -148,6 +159,17 @@ client.on("messageReactionRemove", async (message, user) => {
   if (channel.name === "cheeki-breachability") {
     try {
       cheekiMonke.handleCheekiScheduleReactionRemove(
+        epochTime,
+        messageFromChannel
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  if (channel.name === "cheeki-matches") {
+    try {
+      await cheekiMonke.handleCheekiMatchesReactionRemove(
         epochTime,
         messageFromChannel
       );
