@@ -239,14 +239,14 @@ class CheekiMonke {
     let captainUserObject = null;
     let cheekiMatchesReactionCount = 0;
 
-    if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
-      captainUserObject = await getUserObjectByID(
-        this.client,
-        messageFromChannel.content.match(/<@(\d+)>/)[1]
-      );
-    } else {
-      return;
-    }
+    // if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
+    //   captainUserObject = await getUserObjectByID(
+    //     this.client,
+    //     messageFromChannel.content.match(/<@(\d+)>/)[1]
+    //   );
+    // } else {
+    //   return;
+    // }
     if (!epochTime || !messageFromChannel) {
       return;
     }
