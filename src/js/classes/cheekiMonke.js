@@ -239,14 +239,16 @@ class CheekiMonke {
     let captainUserObject = null;
     let cheekiMatchesReactionCount = 0;
 
-    // if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
-    //   captainUserObject = await getUserObjectByID(
-    //     this.client,
-    //     messageFromChannel.content.match(/<@(\d+)>/)[1]
-    //   );
-    // } else {
-    //   return;
-    // }
+    const match = messageFromChannel.content.match(/<@(\d+)>/)
+    if (match[1]) {
+      if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
+        captainUserObject = await getUserObjectByID(
+          this.client,
+          messageFromChannel.content.match(/<@(\d+)>/)[1]
+        );
+      }
+    }
+
     if (!epochTime || !messageFromChannel) {
       return;
     }
@@ -257,9 +259,11 @@ class CheekiMonke {
 
     if (cheekiMatchesReactionCount >= this.minReactions) {
       if (!messageFromChannel.content.includes("--Confirmed With Captain--")) {
-        // await captainUserObject.send(
-        //   `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
-        // );
+        if (captainUserObject) {
+          await captainUserObject.send(
+            `Your scrim request for <t:${epochTime}:F> vs CHBR has been ACCEPTED`
+          );
+        }
         await messageFromChannel.edit(
           `--Confirmed With Captain--\n${messageFromChannel.content}`
         );
