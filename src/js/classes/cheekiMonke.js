@@ -240,7 +240,7 @@ class CheekiMonke {
     let cheekiMatchesReactionCount = 0;
 
     const match = messageFromChannel.content.match(/<@(\d+)>/)
-    if (match[1]) {
+    if (match) {
       if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
         captainUserObject = await getUserObjectByID(
           this.client,
