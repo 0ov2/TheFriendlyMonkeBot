@@ -63,7 +63,7 @@ client.on("messageCreate", async (message) => {
     cheekiMonke.confirmMatch(message)
   }
 
-  if (message.content.includes("!delm")) {
+  if (message.content.includes("!delm")) { 
     cheekiMonke.deleteMessagesInThisChannel(message);
   }
 });
