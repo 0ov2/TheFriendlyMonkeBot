@@ -44,6 +44,7 @@ class CheekiMonke {
       "476820745113042955": "Nexus",
       "510476673146421258": "RCL",
       "780046286388461568": ".COM",
+      "718863700601077790": "IVI"
     };
   }
 
@@ -236,6 +237,10 @@ class CheekiMonke {
   }
 
   async handleCheekiMatchesReactionAdd(epochTime, messageFromChannel) {
+    if (!messageFromChannel.author.bot) {
+      return
+    }
+
     let captainUserObject = null;
     let cheekiMatchesReactionCount = 0;
 
