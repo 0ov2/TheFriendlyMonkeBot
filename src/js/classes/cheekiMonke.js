@@ -44,7 +44,8 @@ class CheekiMonke {
       "476820745113042955": "Nexus",
       "510476673146421258": "RCL",
       "780046286388461568": ".COM",
-      "718863700601077790": "IVI"
+      "718863700601077790": "IVI",
+      "259466508814516224": "DEV",
     };
   }
 
@@ -238,13 +239,13 @@ class CheekiMonke {
 
   async handleCheekiMatchesReactionAdd(epochTime, messageFromChannel) {
     if (!messageFromChannel.author.bot) {
-      return
+      return;
     }
 
     let captainUserObject = null;
     let cheekiMatchesReactionCount = 0;
 
-    const match = messageFromChannel.content.match(/<@(\d+)>/)
+    const match = messageFromChannel.content.match(/<@(\d+)>/);
     if (match) {
       if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
         captainUserObject = await getUserObjectByID(
@@ -275,12 +276,15 @@ class CheekiMonke {
       }
     }
 
-    if (!messageFromChannel.content.includes('Players - ')) {
+    if (!messageFromChannel.content.includes("Players - ")) {
       await messageFromChannel.edit(
         `${messageFromChannel.content}\nPlayers - ${cheekiMatchesReactionCount}`
       );
     } else {
-      const editedString = messageFromChannel.content.replace(/(Players - )\d+/, `$1${cheekiMatchesReactionCount}`)
+      const editedString = messageFromChannel.content.replace(
+        /(Players - )\d+/,
+        `$1${cheekiMatchesReactionCount}`
+      );
       await messageFromChannel.edit(editedString);
     }
   }
@@ -289,7 +293,7 @@ class CheekiMonke {
     let captainUserObject = null;
     let cheekiMatchesReactionCount = 0;
 
-    const match = messageFromChannel.content.match(/<@(\d+)>/)
+    const match = messageFromChannel.content.match(/<@(\d+)>/);
     if (match) {
       if (messageFromChannel.content.match(/<@(\d+)>/)[1]) {
         captainUserObject = await getUserObjectByID(
@@ -306,12 +310,15 @@ class CheekiMonke {
       cheekiMatchesReactionCount += 1;
     });
 
-    if (!messageFromChannel.content.includes('Players - ')) {
+    if (!messageFromChannel.content.includes("Players - ")) {
       await messageFromChannel.edit(
         `${messageFromChannel.content}\nPlayers - ${cheekiMatchesReactionCount}`
       );
     } else {
-      const editedString = messageFromChannel.content.replace(/(Players - )\d+/, `$1${cheekiMatchesReactionCount}`)
+      const editedString = messageFromChannel.content.replace(
+        /(Players - )\d+/,
+        `$1${cheekiMatchesReactionCount}`
+      );
       await messageFromChannel.edit(editedString);
     }
   }
@@ -331,7 +338,7 @@ class CheekiMonke {
   }
 
   async deleteMessagesInThisChannel(message) {
-    let numberString = null
+    let numberString = null;
     if (this.superPowers.includes(message.author.id)) {
       const regex = /!delm (\d+)/;
       const match = message.content.match(regex);
@@ -343,8 +350,8 @@ class CheekiMonke {
 
       await message.channel.messages.fetch(numberString).then(async (msg) => {
         await msg.delete().then(async () => {
-          await message.delete()
-        })
+          await message.delete();
+        });
       });
     }
   }
@@ -451,6 +458,187 @@ class CheekiMonke {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async declineMatch(message) {
+    message.delete();
+    if (!this.isSuperPower(message)) {
+      return;
+    }
+
+    if (
+      getDiscordChannelObjectByID(this.client, message.channelId).name !==
+      "cheeki-matches"
+    ) {
+      return;
+    }
+
+    //
+    //  Get the message ID
+    const messageID = this.getMessageIDFromMessage(message);
+
+    if (!messageID) {
+      return;
+    }
+
+    //
+    //  Get the Epoch number from the message ID
+    const matchMessage = await this.getMessageByIDObject(message, messageID);
+    if (!matchMessage) {
+      return;
+    }
+
+    const epochNumber = this.getEpochFromMessage(matchMessage);
+    if (!epochNumber) {
+      return;
+    }
+
+    //
+    //  Get the captain object from the match message
+    const captainObject = await this.getCaptainObjectFromMatchMessage(
+      matchMessage
+    );
+    if (!captainObject) {
+      return;
+    }
+
+    //
+    //  We have everything we need, DM the captain and delete the match message
+    matchMessage.delete();
+    await captainObject.send(
+      `Your scrim request for <t:${epochNumber}:F> vs CHBR has been DECLINED`
+    );
+  }
+
+  async reorderScheduleMessages(message) {
+    message.delete();
+    if (!this.isSuperPower(message)) {
+      return;
+    }
+    if (
+      getDiscordChannelObjectByID(this.client, message.channelId).name !==
+      "cheeki-schedule"
+    ) {
+      return;
+    }
+
+    const channel = await this.client.channels.fetch(message.channelId);
+    const messages = await channel.messages.fetch({ limit: 20 });
+
+    const timeRegex = /<t:(\d+):F>/;
+    let messageTimes = [];
+    messages.forEach((message) => {
+      const timestampMatch = message.content.match(timeRegex);
+      if (timestampMatch && message.author.bot) {
+        messageTimes.push({
+          id: message.id,
+          epoch: parseInt(timestampMatch[1]),
+        });
+      }
+    });
+
+    // Sort the messages by epoch time in ascending order
+    messageTimes.sort((a, b) => a.epoch - b.epoch);
+
+    // Delete the old messages
+    for (const messageTime of messageTimes) {
+      const message = await channel.messages.fetch(messageTime.id);
+      await message.delete();
+    }
+
+    // Post new messages in the correct order
+    for (const messageTime of messageTimes) {
+      const dateString = `====================================\n<t:${messageTime.epoch}:F>`;
+      await channel.send(dateString);
+    }
+  }
+
+  async changeMatchTime(message) {
+    //
+    //  Delete the command message
+    message.delete();
+    //
+    //  Make sure this command is permitted 
+    if (!this.isSuperPower(message)) {
+      return;
+    }
+    if (
+      getDiscordChannelObjectByID(this.client, message.channelId).name !==
+      "cheeki-matches"
+    ) {
+      return;
+    }
+
+    //
+    //  get the match message ID from the command message 
+    const matchMessageID = this.getMessageIDFromMessage(message);
+    if (!matchMessageID) {
+      return;
+    }
+    //
+    //  get the match message object 
+    const matchMessageObject = await this.getMessageByIDObject(
+      message,
+      matchMessageID
+    );
+    if (!matchMessageObject) {
+      return;
+    }
+    //
+    // get the epoch string from the command message object 
+    const epochFromCommandMessage = message.content.split(" ")[2];
+    if (!epochFromCommandMessage) {
+      return;
+    }
+
+    //
+    //  edit the match message 
+    const editedString = matchMessageObject.content.replace(
+      /(<t:)\d+/,
+      `$1${epochFromCommandMessage}`
+    );
+    await matchMessageObject.edit(editedString);
+  }
+
+  //
+  // :helpers:
+  isSuperPower(message) {
+    return (
+      !this.superPowers.includes(message?.author?.id) ||
+      !this.superPowers.includes(message?.message?.author?.id)
+    );
+  }
+  isMessageAuthorABot(message) {
+    return message.message?.author?.bot;
+  }
+  getMessageIDFromMessage(message) {
+    const regex = /(\d+)/;
+    const match = message.content.match(regex);
+    if (match) {
+      return match[0] || null;
+    }
+  }
+  async getMessageByIDObject(message, messageID) {
+    let channelMessages = await message.channel.messages.fetch();
+    let channelMessage = await channelMessages.find(
+      (msg) => msg.id === messageID && msg.author.bot == true
+    );
+
+    return channelMessage || null;
+  }
+  async getCaptainObjectFromMatchMessage(message) {
+    const regex2 = /(?<=<@)\d+(?=>)/;
+    const match2 = message.content.match(regex2);
+    if (match2) {
+      return (await this.client.users.fetch(match2[0])) || null;
+    } else {
+      return null;
+    }
+  }
+  getEpochFromMessage(message) {
+    const regex1 = /(?<=<t:)\d+(?=:F>)/;
+    const match1 = message.content.match(regex1);
+    return match1 ? match1[0] : null;
   }
 }
 

@@ -62,9 +62,24 @@ client.on("messageCreate", async (message) => {
   if (message.content.includes("!cmatch")) {
     cheekiMonke.confirmMatch(message)
   }
-
-  if (message.content.includes("!delm")) { 
-    cheekiMonke.deleteMessagesInThisChannel(message);
+  try {
+    if (message.content.includes("!delm")) { 
+      cheekiMonke.deleteMessagesInThisChannel(message);
+    }
+  
+    if (message.content.includes("!decline")) { 
+      await cheekiMonke.declineMatch(message)
+    }
+  
+    if (message.content.includes("!reorder")) { 
+      await cheekiMonke.reorderScheduleMessages(message)
+    }
+  
+    if (message.content.includes("!changeTime")) { 
+      await cheekiMonke.changeMatchTime(message)
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 
