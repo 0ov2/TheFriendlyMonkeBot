@@ -5,7 +5,7 @@ require("dotenv").config();
 
 //
 //  :code:
-const { setUpAvailabilityCronJobs, manualPostAv } = require("./js/cron");
+const { setUpAvailabilityCronJobs, manualPostAv, deleteOldScheduleMessages } = require("./js/cron");
 const { getDiscordChannelObjectByID } = require("./js/util");
 const { CheekiMonke } = require("./js/classes/cheekiMonke");
 
@@ -39,6 +39,7 @@ client.on("ready", async () => {
   //
   //  Lets set up our avilability cron
   setUpAvailabilityCronJobs(client);
+  deleteOldScheduleMessages(client)
 });
 
 client.on("messageCreate", async (message) => {

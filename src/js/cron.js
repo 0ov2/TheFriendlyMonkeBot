@@ -107,4 +107,38 @@ const manualPostAv = async (client) => {
   );
 };
 
-module.exports = { setUpAvailabilityCronJobs, manualPostAv };
+const deleteOldScheduleMessages = async (client) => { // * * * * *  // 10 19 * * *
+  schedule.scheduleJob("10 19 * * *", async () => {
+    try {
+      const scheduleChannelObject = getDiscordChannelObject(
+        client,
+        "cheeki-schedule"
+      );
+      if (!scheduleChannelObject) {
+        return;
+      }
+      const messages = await scheduleChannelObject.messages.fetch();
+      const currentTime = Date.now();
+  
+      messages.forEach((message) => {
+        if (!message.author.bot) {return}
+        const epochTimeMatches = message.content.match(/\d{10,}/g);
+        if (epochTimeMatches) {
+          epochTimeMatches.forEach((match) => {
+            const messageDate = new Date(parseInt(match) * 1000);
+  
+            if (messageDate.getTime() < currentTime) {
+              message
+                .delete()
+                .catch(console.error);
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  })
+}
+
+module.exports = { setUpAvailabilityCronJobs, manualPostAv, deleteOldScheduleMessages };

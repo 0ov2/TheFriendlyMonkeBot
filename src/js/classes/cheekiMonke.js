@@ -38,14 +38,18 @@ class CheekiMonke {
       "156861171062931456",
     ];
     this.captainIDMapping = {
-      "640090857147596810": "BLAZE",
+      "640090857147596810": "FYR",
       "559803574784098306": "TBD",
       "941846059834044487": "French Resistance",
       "476820745113042955": "Nexus",
-      "510476673146421258": "RCL",
+      "510476673146421258": "RGNK",
       "780046286388461568": ".COM",
       "718863700601077790": "IVI",
       "259466508814516224": "DEV",
+      "1132792059732951041": "Alfa X EU",
+      "422154105209749504": "Exit",
+      "321668288687898634": "FOU",
+      "801738127873540106": "RVL",
     };
   }
 
@@ -558,7 +562,7 @@ class CheekiMonke {
     //  Delete the command message
     message.delete();
     //
-    //  Make sure this command is permitted 
+    //  Make sure this command is permitted
     if (!this.isSuperPower(message)) {
       return;
     }
@@ -570,13 +574,13 @@ class CheekiMonke {
     }
 
     //
-    //  get the match message ID from the command message 
+    //  get the match message ID from the command message
     const matchMessageID = this.getMessageIDFromMessage(message);
     if (!matchMessageID) {
       return;
     }
     //
-    //  get the match message object 
+    //  get the match message object
     const matchMessageObject = await this.getMessageByIDObject(
       message,
       matchMessageID
@@ -585,14 +589,14 @@ class CheekiMonke {
       return;
     }
     //
-    // get the epoch string from the command message object 
+    // get the epoch string from the command message object
     const epochFromCommandMessage = message.content.split(" ")[2];
     if (!epochFromCommandMessage) {
       return;
     }
 
     //
-    //  edit the match message 
+    //  edit the match message
     const editedString = matchMessageObject.content.replace(
       /(<t:)\d+/,
       `$1${epochFromCommandMessage}`
