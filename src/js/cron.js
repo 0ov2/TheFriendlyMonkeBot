@@ -80,8 +80,9 @@ const manualPostAv = async (client) => {
 
   for (let i = 1; i < 8; i++) {
     let date = spaceTimeDate.add(i, "day");
-    epochArray.push({ epoch: date.epoch / 1000, day: date.format("day") });
+    epochArray.push({ epoch: (date.epoch / 1000) - 3600, day: date.format("day") });
   }
+
 
   //
   //  :step 2:
